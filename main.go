@@ -58,7 +58,6 @@ func ClockIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated) // 201 Created
-	fmt.Fprintf(w, "Clock-in recorded")
 }
 
 func ClockOut(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +78,6 @@ func ClockOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Clock out recorded")
 }
 
 func WeeklyHours(w http.ResponseWriter, r *http.Request) {
@@ -135,8 +133,6 @@ WHERE day >= date_trunc('week', CURRENT_DATE AT TIME ZONE 'America/Los_Angeles')
 
 		entries = append(entries, e)
 	}
-
-	fmt.Println("Weekly", entries)
 
 	w.Header().Set("Content-Tyoe", "application/json")
 	json.NewEncoder(w).Encode(entries)
@@ -219,7 +215,7 @@ func main() {
 	}
 
 	log.Println("Started on port", port)
-	fmt.Println("To close connection CTRL+C :-)")
+	fmt.Println("To close connection CTRL+C")
 
 	err := http.ListenAndServe(port, nil)
 	if err != nil {
