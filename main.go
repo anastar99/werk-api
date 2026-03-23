@@ -92,7 +92,54 @@ func WeeklyHours(w http.ResponseWriter, r *http.Request) {
 	// Day 3: 4hrs
 	// etc
 
-	fmt.Println("Weekly hours")
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	rows, err := db.Query(`
+SELECT id, day, clock_in, clock_out
+FROM attendance
+WHERE day >= date_trunc('week', CURRENT_DATE AT TIME ZONE 'America/Los_Angeles')::date
+  AND day <= (CURRENT_DATE AT TIME ZONE 'America/Los_Angeles')::date;
+`)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+
+	type Entry struct {
+		ID       int        `json:"id"`
+		Day      string     `json:"day"`
+		Clockin  time.Time  `json:"clock_in"`
+		ClockOut *time.Time `json:"clock_out,omitempty"`
+	}
+
+	var entries []Entry
+
+	for rows.Next() {
+		var e Entry
+		var clockOut sql.NullTime
+
+		if err := rows.Scan(&e.ID, &e.Day, &e.Clockin, &clockOut); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if clockOut.Valid {
+			e.ClockOut = &clockOut.Time
+		}
+
+		entries = append(entries, e)
+	}
+
+	fmt.Println("Weekly", entries)
+
+	w.Header().Set("Content-Tyoe", "application/json")
+	json.NewEncoder(w).Encode(entries)
 }
 
 func BiWeeklyHours(w http.ResponseWriter, r *http.Request) {
@@ -145,8 +192,6 @@ func Entries(w http.ResponseWriter, r *http.Request) {
 
 		entries = append(entries, e)
 	}
-
-	fmt.Println("The entries are", entries)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(entries)
