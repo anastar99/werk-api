@@ -96,10 +96,16 @@ func WeeklyHours(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := db.Query(`
-SELECT id, day, clock_in, clock_out
-FROM attendance
-WHERE day >= date_trunc('week', CURRENT_DATE AT TIME ZONE 'America/Los_Angeles')::date
-  AND day <= (CURRENT_DATE AT TIME ZONE 'America/Los_Angeles')::date;
+	SELECT 
+		id, day, clock_in, clock_out
+	FROM 
+		attendance
+	WHERE 
+		day >= date_trunc('week', CURRENT_DATE AT TIME ZONE 'America/Los_Angeles')::date
+	AND 
+		day <= (CURRENT_DATE AT TIME ZONE 'America/Los_Angeles')::date
+	ORDER BY
+		day ASC;
 `)
 
 	if err != nil {
