@@ -158,3 +158,11 @@ func (s *Server) Entries(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Tyoe", "application/json")
 	json.NewEncoder(w).Encode(entries)
 }
+
+func (s *Server) Routes() {
+	http.HandleFunc("/clock-in", s.ClockIn)
+	http.HandleFunc("/clock-out", s.ClockOut)
+	http.HandleFunc("/entries", s.Entries)
+	http.HandleFunc("/week", s.WeeklyHours)
+	http.HandleFunc("/biweek", s.BiWeeklyHours)
+}

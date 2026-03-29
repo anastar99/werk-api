@@ -55,11 +55,7 @@ func main() {
 
 	log.Println("Starting out simple server...")
 
-	http.HandleFunc("/clock-in", s.ClockIn)
-	http.HandleFunc("/clock-out", s.ClockOut)
-	http.HandleFunc("/entries", s.Entries)
-	http.HandleFunc("/week", s.WeeklyHours)
-	http.HandleFunc("/biweek", s.BiWeeklyHours)
+	s.Routes()
 
 	port := os.Getenv("PORT")
 	if port == "" {
